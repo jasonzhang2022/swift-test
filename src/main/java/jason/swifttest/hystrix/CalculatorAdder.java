@@ -1,16 +1,12 @@
 package jason.swifttest.hystrix;
 
+import com.netflix.hystrix.HystrixCommand;
 import com.netflix.hystrix.HystrixCommandGroupKey;
 import com.netflix.hystrix.HystrixCommandKey;
-import com.netflix.hystrix.HystrixObservableCommand;
 
 import jason.swifttest.Calculator;
-import rx.AsyncEmitter;
-import rx.AsyncEmitter.BackpressureMode;
-import rx.Observable;
-import rx.functions.Action1;
 
-public class CalculatorAdder extends HystrixObservableCommand<Integer> {
+public class CalculatorAdder extends HystrixCommand<Integer> {
 
 	
 	int left;
@@ -23,39 +19,25 @@ public class CalculatorAdder extends HystrixObservableCommand<Integer> {
 		this.right = right;
 	}
 	
-	@Override
-	protected Observable<Integer> construct() {
-		
-		
-		
-		return Observable.fromEmitter(new Action1<AsyncEmitter<Integer>>(){
-
-			@Override
-			public void call(AsyncEmitter<Integer> t) {
-				ClientFactory.getInstance().getClient(Calculator.class).subscribe(client->{
-					
-					try  {
-						int sum=client.plus(left, right);
-						t.onNext(sum);
-						t.onCompleted();
-						client.close();
-					} catch (Exception e){
-						t.onError(e);
-						try {
-							client.close();
-						} catch (Exception e1) {
-							
-						}
-					}
-					
-					
-				}, exception->{
-					t.onError(exception);
-				});
-			}
-			
-		}, BackpressureMode.NONE);
-		
+	
+	protected Integer run() throws Exception {
+		try  (Calculator calc=ClientFactory.getInstance().getClient(Calculator.class).toBlocking().toFuture().get()){
+			return calc.plus(left, right);
+		}
 	}
 
+
+	@Override
+	protected Integer getFallback() {
+		return 0;
+	}
+
+
+	@Override
+	protected String getCacheKey() {
+	
+		return Math.min(left, right)+"+"+Math.max(left, right);
+	}
+	
+	
 }

@@ -6,6 +6,7 @@
   <properties>
   	     <swift-version>0.23.1</swift-version>
   	     <hystrix-version>1.5.9</hystrix-version>
+  	     <junit-version>4.12</junit-version>
   </properties>
   <dependencies>
   	<dependency>
@@ -40,7 +41,12 @@
   		<version>${hystrix-version}</version>
   		
   	</dependency>
-  	
+  	<dependency>
+  		<groupId>junit</groupId>
+  		<artifactId>junit</artifactId>
+  		<version>${junit-version}</version>
+  		
+  	</dependency>
   </dependencies>
   
   	  <build>

@@ -3,6 +3,7 @@ package jason.swifttest.hystrix;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.netflix.hystrix.HystrixCommandGroupKey;
 import com.netflix.hystrix.HystrixCommandKey;
+import com.netflix.hystrix.HystrixCommandProperties;
 import com.netflix.hystrix.HystrixObservableCommand;
 
 import jason.swifttest.Calculator;
@@ -18,6 +19,7 @@ public class CalculatorMultiplication   extends HystrixObservableCommand<Integer
 	public CalculatorMultiplication (int left, int right){
 		super(Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey("calculator"))
 				.andCommandKey(HystrixCommandKey.Factory.asKey("multiplication"))
+				.andCommandPropertiesDefaults(HystrixCommandProperties.Setter().withExecutionTimeoutInMilliseconds(4000))
 				);
 		this.left = left;
 		this.right = right;
@@ -66,4 +68,12 @@ public class CalculatorMultiplication   extends HystrixObservableCommand<Integer
 		}, BackpressureMode.NONE);
 		
 	}
+
+	@Override
+	protected Observable<Integer> resumeWithFallback() {
+		System.out.println("**********fall back is called for multiplication");
+		return Observable.just(0);
+	}
+	
+	
 }

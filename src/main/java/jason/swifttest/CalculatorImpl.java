@@ -11,6 +11,10 @@ public class CalculatorImpl implements Calculator {
 
 	public int plus(int left, int right) {
 		System.out.printf("return sum for %d+ %d\n ", left, right);
+		
+		if (right==10){
+			throw new RuntimeException("cann't add");
+		}
 		return left + right;
 	}
 
@@ -18,7 +22,12 @@ public class CalculatorImpl implements Calculator {
 		
 		ListeningExecutorService executorService = MoreExecutors.listeningDecorator(Executors.newScheduledThreadPool(1));
 		return executorService.submit( ()-> { 
-			Thread.currentThread().sleep(5000);
+			
+			if (right==10){
+				Thread.currentThread().sleep(5000);
+			} else {
+				Thread.currentThread().sleep(3000);
+			}
 			System.out.printf("return product for %d * %d \n ", left, right);
 			return left*right;
 			});
